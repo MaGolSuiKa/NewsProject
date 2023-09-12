@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.geekaca.news.newssys.dao.NewsMapper">
+<!--    java实体类和表字段间的映射关系-->
+    <resultMap id="BaseResultMap" type="com.geekaca.news.newssys.domain.News">
+        <id column="news_id" jdbcType="BIGINT" property="newsId"/>
+        <result column="news_title" jdbcType="VARCHAR" property="newsTitle"/>
+        <result column="news_sub_url" jdbcType="VARCHAR" property="newsSubUrl"/>
+        <result column="news_cover_image" jdbcType="VARCHAR" property="newsCoverImage"/>
+        <result column="news_category_id" jdbcType="INTEGER" property="newsCategoryId"/>
+        <result column="news_category_name" jdbcType="VARCHAR" property="newsCategoryName"/>
+        <result column="news_tags" jdbcType="VARCHAR" property="newsTags"/>
+        <result column="news_status" jdbcType="TINYINT" property="newsStatus"/>
+        <result column="news_views" jdbcType="BIGINT" property="newsViews"/>
+        <result column="enable_comment" jdbcType="TINYINT" property="enableComment"/>
+        <result column="is_deleted" jdbcType="TINYINT" property="isDeleted"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+<!--    单独一个， 继承， 额外增加字段-->
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.geekaca.news.newssys.domain.News">
+        <result column="news_content" jdbcType="LONGVARCHAR" property="newsContent"/>
+    </resultMap>
+<!--     把常用的列 放在一起，方便引用-->
+    <sql id="Base_Column_List">
+    news_id, news_title, news_sub_url, news_cover_image, news_category_id, news_category_name, 
+    news_tags, news_status, news_views, enable_comment, is_deleted, create_time, update_time
+  </sql>
+    <sql id="Blob_Column_List">
+    news_content
+  </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List"/>,
+
+        <include refid="Blob_Column_List"/>
+        from tb_news
+        where news_id = #{newsId,jdbcType=BIGINT} and is_deleted = 0
+<!--   0 代表正常的   1已经删除的-->
+    </select>
+<!--    查询文章列表  is_deleted=0 未删除 -->
+    <select id="findNewsList" parameterType="Map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_news
+        where is_deleted=0
+        <if test="keyword!=null">
+            AND (news_title like CONCAT('%',#{keyword},'%' ) or news_category_name like CONCAT('%',#{keyword},'%' ))
+        </if>
+        <if test="newsStatus!=null">
+            AND news_status = #{newsStatus}
+        </if>
+        <if test="newsCategoryId!=null">
+            AND news_category_id = #{newsCategoryId}
+        </if>
+        order by news_id desc
+        <if test="start!=null and limit!=null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+<!--     这个sql 语句，不光可以查询所有新闻的数量
+还可以 根据关键字，类别id查询数量-->
+    <select id="getTotalNewss" parameterType="Map" resultType="int">
+        select count(*) from tb_news
+        where is_deleted=0
+        <if test="keyword!=null">
+            AND (news_title like CONCAT('%',#{keyword},'%' ) or news_category_name like CONCAT('%',#{keyword},'%' ))
+        </if>
+        <if test="newsStatus!=null">
+            AND news_status = #{newsStatus}
+        </if>
+        <if test="newsCategoryId!=null">
+            AND news_category_id = #{newsCategoryId}
+        </if>
+    </select>
+    <select id="findNewsListByType" resultMap="BaseResultMap">
+        select *
+       <!-- <include refid="Base_Column_List"/>-->
+        from tb_news
+        where is_deleted=0 AND news_status = 1<!-- 发布状态的文章 -->
+        <if test="type!=null and type==0">
+            order by news_views desc
+        </if>
+        <if test="type!=null and type==1">
+            order by news_id desc
+        </if>
+        limit #{limit}
+    </select>
+
+    <select id="getNewssPageByTagId" parameterType="Map" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_news
+        where news_id IN (SELECT news_id FROM tb_news_tag_relation WHERE tag_id = #{tagId})
+        AND news_status =1 AND is_deleted=0
+        order by news_id desc
+        <if test="start!=null and limit!=null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <select id="getTotalNewssByTagId" parameterType="Map" resultType="int">
+        select count(*)
+        from tb_news
+        where  news_id IN (SELECT news_id FROM tb_news_tag_relation WHERE tag_id = #{tagId})
+        AND news_status =1 AND is_deleted=0
+    </select>
+
+    <select id="selectBySubUrl" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from tb_news
+        where news_sub_url = #{subUrl,jdbcType=VARCHAR} and is_deleted = 0 limit 1
+    </select>
+
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    UPDATE tb_news SET is_deleted = 1
+    where news_id = #{newsId,jdbcType=BIGINT} and is_deleted = 0
+  </update>
+    <update id="deleteBatch">
+        update tb_news
+        set is_deleted=1 where news_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+    <insert id="insert" parameterType="com.geekaca.news.newssys.domain.News">
+    insert into tb_news (news_id, news_title, news_sub_url, 
+      news_cover_image, news_category_id, news_category_name, 
+      news_tags, news_status, news_views, 
+      enable_comment, is_deleted, create_time, 
+      update_time, news_content)
+    values (#{newsId,jdbcType=BIGINT}, #{newsTitle,jdbcType=VARCHAR}, #{newsSubUrl,jdbcType=VARCHAR}, 
+      #{newsCoverImage,jdbcType=VARCHAR}, #{newsCategoryId,jdbcType=INTEGER}, #{newsCategoryName,jdbcType=VARCHAR}, 
+      #{newsTags,jdbcType=VARCHAR}, #{newsStatus,jdbcType=TINYINT}, #{newsViews,jdbcType=BIGINT}, 
+      #{enableComment,jdbcType=TINYINT}, #{isDeleted,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{newsContent,jdbcType=LONGVARCHAR})
+  </insert>
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="newsId"
+            parameterType="com.geekaca.news.newssys.domain.News">
+        insert into tb_news
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="newsId != null">
+                news_id,
+            </if>
+            <if test="newsTitle != null">
+                news_title,
+            </if>
+            <if test="newsSubUrl != null">
+                news_sub_url,
+            </if>
+            <if test="newsCoverImage != null">
+                news_cover_image,
+            </if>
+            <if test="newsCategoryId != null">
+                news_category_id,
+            </if>
+            <if test="newsCategoryName != null">
+                news_category_name,
+            </if>
+            <if test="newsTags != null">
+                news_tags,
+            </if>
+            <if test="newsStatus != null">
+                news_status,
+            </if>
+            <if test="newsViews != null">
+                news_views,
+            </if>
+            <if test="enableComment != null">
+                enable_comment,
+            </if>
+            <if test="isDeleted != null">
+                is_deleted,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="newsContent != null">
+                news_content,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="newsId != null">
+                #{newsId,jdbcType=BIGINT},
+            </if>
+            <if test="newsTitle != null">
+                #{newsTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="newsSubUrl != null">
+                #{newsSubUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="newsCoverImage != null">
+                #{newsCoverImage,jdbcType=VARCHAR},
+            </if>
+            <if test="newsCategoryId != null">
+                #{newsCategoryId,jdbcType=INTEGER},
+            </if>
+            <if test="newsCategoryName != null">
+                #{newsCategoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="newsTags != null">
+                #{newsTags,jdbcType=VARCHAR},
+            </if>
+            <if test="newsStatus != null">
+                #{newsStatus,jdbcType=TINYINT},
+            </if>
+            <if test="newsViews != null">
+                #{newsViews,jdbcType=BIGINT},
+            </if>
+            <if test="enableComment != null">
+                #{enableComment,jdbcType=TINYINT},
+            </if>
+            <if test="isDeleted != null">
+                #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="newsContent != null">
+                #{newsContent,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.geekaca.news.newssys.domain.News">
+        update tb_news
+        <set>
+            <if test="newsTitle != null">
+                news_title = #{newsTitle,jdbcType=VARCHAR},
+            </if>
+            <if test="newsSubUrl != null">
+                news_sub_url = #{newsSubUrl,jdbcType=VARCHAR},
+            </if>
+            <if test="newsCoverImage != null">
+                news_cover_image = #{newsCoverImage,jdbcType=VARCHAR},
+            </if>
+            <if test="newsContent != null">
+                news_content = #{newsContent,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="newsCategoryId != null">
+                news_category_id = #{newsCategoryId,jdbcType=INTEGER},
+            </if>
+            <if test="newsCategoryName != null">
+                news_category_name = #{newsCategoryName,jdbcType=VARCHAR},
+            </if>
+            <if test="newsTags != null">
+                news_tags = #{newsTags,jdbcType=VARCHAR},
+            </if>
+            <if test="newsStatus != null">
+                news_status = #{newsStatus,jdbcType=TINYINT},
+            </if>
+            <if test="newsViews != null">
+                news_views = #{newsViews,jdbcType=BIGINT},
+            </if>
+            <if test="enableComment != null">
+                enable_comment = #{enableComment,jdbcType=TINYINT},
+            </if>
+            <if test="isDeleted != null">
+                is_deleted = #{isDeleted,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="newsContent != null">
+                news_content = #{newsContent,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where news_id = #{newsId,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.geekaca.news.newssys.domain.News">
+    update tb_news
+    set news_title = #{newsTitle,jdbcType=VARCHAR},
+      news_sub_url = #{newsSubUrl,jdbcType=VARCHAR},
+      news_cover_image = #{newsCoverImage,jdbcType=VARCHAR},
+      news_category_id = #{newsCategoryId,jdbcType=INTEGER},
+      news_category_name = #{newsCategoryName,jdbcType=VARCHAR},
+      news_tags = #{newsTags,jdbcType=VARCHAR},
+      news_status = #{newsStatus,jdbcType=TINYINT},
+      news_views = #{newsViews,jdbcType=BIGINT},
+      enable_comment = #{enableComment,jdbcType=TINYINT},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      news_content = #{newsContent,jdbcType=LONGVARCHAR}
+    where news_id = #{newsId,jdbcType=BIGINT}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.geekaca.news.newssys.domain.News">
+    update tb_news
+    set news_title = #{newsTitle,jdbcType=VARCHAR},
+      news_sub_url = #{newsSubUrl,jdbcType=VARCHAR},
+      news_cover_image = #{newsCoverImage,jdbcType=VARCHAR},
+      news_category_id = #{newsCategoryId,jdbcType=INTEGER},
+      news_category_name = #{newsCategoryName,jdbcType=VARCHAR},
+      news_tags = #{newsTags,jdbcType=VARCHAR},
+      news_status = #{newsStatus,jdbcType=TINYINT},
+      news_views = #{newsViews,jdbcType=BIGINT},
+      enable_comment = #{enableComment,jdbcType=TINYINT},
+      is_deleted = #{isDeleted,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where news_id = #{newsId,jdbcType=BIGINT}
+  </update>
+    <update id="updateNewsCategorys">
+        update tb_news
+        set news_category_id = #{categoryId,jdbcType=INTEGER},
+        news_category_name = #{categoryName,jdbcType=VARCHAR}
+        where news_category_id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and is_deleted =0
+    </update>
+</mapper>
