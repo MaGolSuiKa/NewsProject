@@ -42,4 +42,9 @@ public interface NewsMapper {
     News selectBySubUrl(String subUrl);
 
     int updateNewsCategorys(@Param("categoryName") String categoryName, @Param("categoryId") Integer categoryId, @Param("ids")Integer[] ids);
+
+    List<News> selectAll();
+    News selectById(Long id);
+    List<News> selectByPage(@Param("start") Integer start, @Param("recordSize") Integer recordSize);
+    int selectNewsCount();
 }

@@ -17,6 +17,28 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
+    <resultMap id="NewsMap" type="com.geekaca.news.newssys.domain.News">
+        <id property="newsId" column="news_id" jdbcType="BIGINT"/>
+        <result property="newsTitle" column="news_title" jdbcType="VARCHAR"/>
+        <result property="newsSubUrl" column="news_sub_url" jdbcType="VARCHAR"/>
+        <result property="newsCoverImage" column="news_cover_image" jdbcType="VARCHAR"/>
+        <result property="newsContent" column="news_content" jdbcType="VARCHAR"/>
+        <result property="newsCategoryId" column="news_category_id" jdbcType="INTEGER"/>
+        <result property="newsCategoryName" column="news_category_name" jdbcType="VARCHAR"/>
+        <result property="newsTags" column="news_tags" jdbcType="VARCHAR"/>
+        <result property="newsStatus" column="news_status" jdbcType="TINYINT"/>
+        <result property="newsViews" column="news_views" jdbcType="BIGINT"/>
+        <result property="enableComment" column="enable_comment" jdbcType="TINYINT"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <collection property="commentList" ofType="com.geekaca.news.domain.NewsComment">
+            <id property="commentId" column="comment_id"></id>
+            <result column="commentator" property="commentator"></result>
+            <result column="comment_body" property="commentBody"></result>
+            <result column="comment_create_time" property="commentCreateTime"></result>
+        </collection>
+    </resultMap>
 <!--    单独一个， 继承， 额外增加字段-->
     <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.geekaca.news.newssys.domain.News">
         <result column="news_content" jdbcType="LONGVARCHAR" property="newsContent"/>
@@ -115,6 +137,7 @@
         from tb_news
         where news_sub_url = #{subUrl,jdbcType=VARCHAR} and is_deleted = 0 limit 1
     </select>
+
 
     <update id="deleteByPrimaryKey" parameterType="java.lang.Long">
     UPDATE tb_news SET is_deleted = 1
@@ -322,4 +345,46 @@
         </foreach>
         and is_deleted =0
     </update>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+            nw.news_id, nw.news_title, nw.create_time, nc.category_name as news_category_name
+        FROM
+            tb_news nw,
+            tb_news_category nc
+        WHERE
+            nw.news_category_id = nc.category_id
+        ORDER BY nw.create_time DESC;
+    </select>
+    <select id="selectById" resultMap="NewsMap">
+        SELECT
+            *
+        FROM
+            (SELECT
+                 nc.*,
+                 tnc.commentator,
+                 tnc.comment_body,
+                 tnc.comment_create_time
+             FROM
+                 tb_news nc
+                     LEFT JOIN tb_news_comment tnc ON nc.news_id = tnc.news_id) nw
+        WHERE
+            nw.news_id = #{newsId}
+        ORDER BY nw.comment_create_time DESC
+    </select>
+    <select id="selectByPage" resultMap="BaseResultMap">
+        SELECT
+            nw.news_id, nw.news_title, nw.create_time, nw.news_status,nw.news_views,
+            nc.category_name as news_category_name
+        FROM
+            tb_news nw,
+            tb_news_category nc
+        WHERE
+            nw.news_category_id = nc.category_id
+        ORDER BY nw.create_time DESC
+            limit #{start}, #{recordSize}
+    </select>
+    <select id="selectNewsCount" resultType="java.lang.Integer">
+        select count(*) from tb_news
+    </select>
 </mapper>
