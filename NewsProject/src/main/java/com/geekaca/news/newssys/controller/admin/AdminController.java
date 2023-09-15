@@ -42,14 +42,7 @@ public class AdminController {
         //类别数量  ctrl  + Alt 鼠标左键点击，跳转到函数实现
         request.setAttribute("categoryCount", categoryService.getTotalCategories());
         request.setAttribute("blogCount", 0);
-<<<<<<< HEAD
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-        System.out.println("test");
-=======
+
         for (int i = 0; i < 10; i++) {
             System.out.println(i);
             System.out.println("0");
@@ -59,7 +52,6 @@ public class AdminController {
             System.out.println("0");
             System.out.println("0");
         }
->>>>>>> bb06303 (0915 冲突测试)
         request.setAttribute("linkCount", linkService.getTotalLinks());
         request.setAttribute("tagCount", tagService.getTotalTags());
         request.setAttribute("commentCount", commentService.getTotalComments());
