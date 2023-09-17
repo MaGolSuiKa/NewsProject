@@ -41,7 +41,7 @@
                         <th:block th:text="${#dates.format(blogDetailVO.createTime, 'yyyy-MM-dd')}"></th:block> &nbsp;
                             <div class="comments-view" style="display: inline-block">
                                 <a href="#comments" class="article-comments"><th:block
-                                        th:text="${blogDetailVO.commentCount}"></th:block>条评论</a> &nbsp;
+                                        th:text="${blogDetailVO.commentList.size()}"></th:block>条评论</a> &nbsp;
                                 <th:block th:text="${blogDetailVO.newsViews}"></th:block>浏览
                             </div>
                             </span>
@@ -70,9 +70,10 @@
             <hr>
         </div>
     </div>
+<!--     此文章下的所有评论-->
     <aside class="comments" id="comments">
-        <th:block th:if="${null != commentPageResult}">
-            <th:block th:each="comment,iterStat : ${commentPageResult.list}">
+        <th:block th:if="${null != blogDetailVO.commentList}">
+            <th:block th:each="comment,iterStat : ${blogDetailVO.commentList}">
                 <article class="comment">
                     <header class="clearfix">
                         <img th:src="@{/blog/default/img/avatar.png}" class="avatar">
@@ -109,35 +110,35 @@
                 </th:block>
             </th:block>
         </th:block>
-        <th:block th:if="${null != commentPageResult}">
-            <ul class="am-pagination">
-                <li th:class="${commentPageResult.currPage==1}?'disabled' : ''"><a
-                        th:href="@{${commentPageResult.currPage==1}?'##':'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage-1}+'#comments'}">&laquo;</a>
-                </li>
-                <li th:if="${commentPageResult.currPage-3 >=1}"><a
-                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage-3}+'#comments'}"
-                        th:text="${commentPageResult.currPage -3}">1</a></li>
-                <li th:if="${commentPageResult.currPage-2 >=1}"><a
-                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage-2}+'#comments'}"
-                        th:text="${commentPageResult.currPage -2}">1</a></li>
-                <li th:if="${commentPageResult.currPage-1 >=1}"><a
-                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage-1}+'#comments'}"
-                        th:text="${commentPageResult.currPage -1}">1</a></li>
-                <li class="active"><a href="#" th:text="${commentPageResult.currPage}">1</a></li>
-                <li th:if="${commentPageResult.currPage+1 <=commentPageResult.totalPage}"><a
-                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage+1}+'#comments'}"
-                        th:text="${commentPageResult.currPage +1}">1</a></li>
-                <li th:if="${commentPageResult.currPage+2 <=commentPageResult.totalPage}"><a
-                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage+2}+'#comments'}"
-                        th:text="${commentPageResult.currPage +2}">1</a></li>
-                <li th:if="${commentPageResult.currPage+3 <=commentPageResult.totalPage}"><a
-                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage+3}+'#comments'}"
-                        th:text="${commentPageResult.currPage +3}">1</a></li>
-                <li th:class="${commentPageResult.currPage==commentPageResult.totalPage}?'disabled' : ''"><a
-                        th:href="@{${commentPageResult.currPage==commentPageResult.totalPage}?'##' : '/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage+1}+'#comments'}">&raquo;</a>
-                </li>
-            </ul>
-        </th:block>
+<!--        <th:block th:if="${null != commentPageResult}">-->
+<!--            <ul class="am-pagination">-->
+<!--                <li th:class="${commentPageResult.currPage==1}?'disabled' : ''"><a-->
+<!--                        th:href="@{${commentPageResult.currPage==1}?'##':'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage-1}+'#comments'}">&laquo;</a>-->
+<!--                </li>-->
+<!--                <li th:if="${commentPageResult.currPage-3 >=1}"><a-->
+<!--                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage-3}+'#comments'}"-->
+<!--                        th:text="${commentPageResult.currPage -3}">1</a></li>-->
+<!--                <li th:if="${commentPageResult.currPage-2 >=1}"><a-->
+<!--                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage-2}+'#comments'}"-->
+<!--                        th:text="${commentPageResult.currPage -2}">1</a></li>-->
+<!--                <li th:if="${commentPageResult.currPage-1 >=1}"><a-->
+<!--                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage-1}+'#comments'}"-->
+<!--                        th:text="${commentPageResult.currPage -1}">1</a></li>-->
+<!--                <li class="active"><a href="#" th:text="${commentPageResult.currPage}">1</a></li>-->
+<!--                <li th:if="${commentPageResult.currPage+1 <=commentPageResult.totalPage}"><a-->
+<!--                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage+1}+'#comments'}"-->
+<!--                        th:text="${commentPageResult.currPage +1}">1</a></li>-->
+<!--                <li th:if="${commentPageResult.currPage+2 <=commentPageResult.totalPage}"><a-->
+<!--                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage+2}+'#comments'}"-->
+<!--                        th:text="${commentPageResult.currPage +2}">1</a></li>-->
+<!--                <li th:if="${commentPageResult.currPage+3 <=commentPageResult.totalPage}"><a-->
+<!--                        th:href="@{'/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage+3}+'#comments'}"-->
+<!--                        th:text="${commentPageResult.currPage +3}">1</a></li>-->
+<!--                <li th:class="${commentPageResult.currPage==commentPageResult.totalPage}?'disabled' : ''"><a-->
+<!--                        th:href="@{${commentPageResult.currPage==commentPageResult.totalPage}?'##' : '/blog/'+${blogDetailVO.newsId}+'?commentPage=' + ${commentPageResult.currPage+1}+'#comments'}">&raquo;</a>-->
+<!--                </li>-->
+<!--            </ul>-->
+<!--        </th:block>-->
     </aside>
     <th:block th:if="${blogDetailVO.enableComment==0}">
         <aside class="create-comment" id="create-comment">

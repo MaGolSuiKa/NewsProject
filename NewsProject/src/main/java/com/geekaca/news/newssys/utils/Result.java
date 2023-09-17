@@ -3,7 +3,7 @@ package com.geekaca.news.newssys.utils;
 import java.io.Serializable;
 
 /**
- 
+ 统一接口返回格式
  */
 public class Result<T> implements Serializable {
     private static final long serialVersionUID = 1L;

@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.geekaca.news.newssys.dao")
+@MapperScan("com.geekaca.news.newssys.mapper")
 public class NewsSysApplication {
 
     public static void main(String[] args) {
