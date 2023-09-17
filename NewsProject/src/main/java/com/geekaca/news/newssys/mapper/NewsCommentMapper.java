@@ -25,4 +25,6 @@ public interface NewsCommentMapper {
     List<NewsComment> findNewsCommentList(PageBean pageBean);
 
     Boolean checkDone(Integer[] ids);
+
+    int deleteBatch(Integer[] ids);
 }
