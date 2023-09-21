@@ -1,8 +1,10 @@
 package com.geekaca.news.newssys.controller.news;
 
 import cn.hutool.captcha.ShearCaptcha;
+import com.geekaca.news.newssys.domain.News;
 import com.geekaca.news.newssys.domain.NewsComment;
 import com.geekaca.news.newssys.service.CommentService;
+import com.geekaca.news.newssys.service.NewsService;
 import com.geekaca.news.newssys.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 
 /**
@@ -21,8 +24,8 @@ import javax.servlet.http.HttpSession;
 @Slf4j
 
 public class NewsController {
-//    @Autowired
-//    private NewsService newsService;
+    @Autowired
+    private NewsService newsService;
 //    @Autowired
 //    private ConfigService configService;
     @Autowired
@@ -38,7 +41,7 @@ public class NewsController {
 //    public String index(HttpServletRequest request) {
 //        return this.page(request, 1);
 //    }
-//
+
 //    @GetMapping({"/page/{pageNum}"})
 //    private String page(HttpServletRequest request, @PathVariable("pageNum") int pageNum) {
 //        PageResult pageNews = newsService.getPageNews(pageNum, 8);
@@ -53,15 +56,15 @@ public class NewsController {
 //        request.setAttribute("configurations", configService.getAllConfigs());
 //        return "blog/" + theme + "/index";
 //    }
-//
-//    //传递集合
-//    @RequestMapping("/all")
-//    public String getAll(HttpServletRequest req){
-//        List<News> allNews = newsService.getAllNews();
-//        req.setAttribute("all", allNews);
-//        return "newsList";
-//
-//    }
+
+    //传递集合
+    @RequestMapping("/all")
+    public String getAll(HttpServletRequest req){
+        List<News> allNews = newsService.getAllNews();
+        req.setAttribute("all", allNews);
+        return "newsList";
+
+    }
     //单个值的传递
     @GetMapping("/toPage")
     public String toPage(HttpServletRequest req){
@@ -70,12 +73,12 @@ public class NewsController {
         return "hello";
     }
     //从控制器向页面传递对象
-//    @GetMapping("/newsDetail/{newsID}")
-//    public String toDetail(HttpServletRequest request, @PathVariable("newsID") Long newsID){
-//        News news = newsService.getById(newsID);
-//        request.setAttribute("newsInfo", news);
-//        return "newsDetail";
-//    }
+    @GetMapping("/newsDetail/{newsID}")
+    public String toDetail(HttpServletRequest request, @PathVariable("newsID") Long newsID){
+        News news = newsService.getById(newsID);
+        request.setAttribute("newsInfo", news);
+        return "newsDetail";
+    }
 
     /**
      * 详情页

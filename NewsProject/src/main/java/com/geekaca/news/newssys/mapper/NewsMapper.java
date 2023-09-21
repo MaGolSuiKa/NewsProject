@@ -23,12 +23,13 @@ public interface NewsMapper {
 
     int updateByPrimaryKey(News record);
 
-
+    // 前台首页 新闻列表查询
     List<News> selectAll();
+
     News selectNewsAndCommentsById(Long id);
 
-    List<News> selectByPage(@Param("start") Integer start, @Param("recordSize") Integer recordSize);
-    int selectNewsCount();
+    List<News> selectByPage(@Param("start") Integer start, @Param("recordSize") Integer recordSize, @Param("keyword") String keyword);
+    int selectNewsCount(@Param("keyword") String keyword);
 
     int increateViews(@Param("newsId") Long newsId);
 }
