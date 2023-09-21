@@ -4,6 +4,7 @@ import cn.hutool.captcha.ShearCaptcha;
 import com.geekaca.news.newssys.domain.News;
 import com.geekaca.news.newssys.domain.NewsComment;
 import com.geekaca.news.newssys.service.CommentService;
+import com.geekaca.news.newssys.service.ConfigService;
 import com.geekaca.news.newssys.service.NewsService;
 import com.geekaca.news.newssys.utils.*;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +27,11 @@ import java.util.List;
 public class NewsController {
     @Autowired
     private NewsService newsService;
-//    @Autowired
-//    private ConfigService configService;
+    @Autowired
+    private ConfigService configService;
     @Autowired
     private CommentService commentService;
+
     public static String theme = "amaze";
 
     /**
@@ -37,25 +39,27 @@ public class NewsController {
      *
      * @return
      */
-//    @GetMapping({"/", "/index", "index.html"})
-//    public String index(HttpServletRequest request) {
-//        return this.page(request, 1);
-//    }
+    @GetMapping({"/", "/index", "index.html"})
+    public String index(HttpServletRequest request) {
+        return this.page(request, 1);
+    }
 
-//    @GetMapping({"/page/{pageNum}"})
-//    private String page(HttpServletRequest request, @PathVariable("pageNum") int pageNum) {
-//        PageResult pageNews = newsService.getPageNews(pageNum, 8);
-//
-//        request.setAttribute("blogPageResult", pageNews);
-//        request.setAttribute("newBlogs", 0);
-//
-//        request.setAttribute("hotBlogs", 0);
-//
-//        request.setAttribute("hotTags", 0);
-//        request.setAttribute("pageName", "首页");
-//        request.setAttribute("configurations", configService.getAllConfigs());
-//        return "blog/" + theme + "/index";
-//    }
+    @GetMapping({"/page/{pageNum}"})
+    private String page(HttpServletRequest request, @PathVariable("pageNum") int pageNum) {
+        PageResult pageNews = newsService.getPageNews(pageNum, 5,null);
+
+        request.setAttribute("blogPageResult", pageNews);
+        //新发布
+        request.setAttribute("newBlogs", 0);
+        //点击最多
+        request.setAttribute("hotBlogs", 0);
+        //热门标签
+        request.setAttribute("hotTags", 0);
+
+        request.setAttribute("pageName", "首页");
+        request.setAttribute("configurations", configService.getAllConfigs());
+        return "blog/" + theme + "/index";
+    }
 
     //传递集合
     @RequestMapping("/all")
@@ -80,27 +84,18 @@ public class NewsController {
         return "newsDetail";
     }
 
-    /**
-     * 详情页
-     *
-     * @return
-     */
-//    @GetMapping({"/blog/{newsId}", "/article/{newsId}"})
-//    public String detail(HttpServletRequest request, @PathVariable("newsId") Long newsId, @RequestParam(value = "commentPage", required = false, defaultValue = "1") Integer commentPage) {
-//        /**
-//         * 1, 查询新闻详情，带出评论
-//         * 2， 更新新闻浏览量 + 1
-//         */
-//        News newsWithComments = newsService.getById(newsId);
-//        request.setAttribute("blogDetailVO", newsWithComments);
-//        request.setAttribute("pageName", "详情");
-//        request.setAttribute("configurations", configService.getAllConfigs());
-//        int i = newsService.updateNewsViews(newsId);
-//        return "blog/" + theme + "/detail";
-//    }
-    /**
-     * 评论操作
-     */
+    //详情页
+    @GetMapping({"/blog/{newsId}", "/article/{newsId}"})
+    public String detail(HttpServletRequest request, @PathVariable("newsId") Long newsId, @RequestParam(value = "commentPage", required = false, defaultValue = "1") Integer commentPage) {
+
+        News newsWithComments = newsService.getById(newsId);
+        request.setAttribute("blogDetailVO", newsWithComments);
+        request.setAttribute("pageName", "详情");
+        request.setAttribute("configurations", configService.getAllConfigs());
+        int i = newsService.updateNewsViews(newsId);
+        return "blog/" + theme + "/detail";
+    }
+    //评论操作
     @PostMapping(value = "/blog/comment")
     @ResponseBody
     public Result comment(HttpServletRequest request, HttpSession session,

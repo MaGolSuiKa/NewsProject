@@ -218,8 +218,8 @@
         WHERE
         nw.news_category_id = nc.category_id
         <if test="keyword != null and keyword != '' ">
-            and ( nw.news_title like concat('%', #{keyword}, '%') or
-            news_category_name like concat('%', #{keyword}, '%') )
+            and ( nw.news_title like concat('%', #{keyword}, '%')
+            or news_category_name like concat('%', #{keyword}, '%') )
         </if>
         ORDER BY nw.create_time DESC
         limit #{start}, #{recordSize}
