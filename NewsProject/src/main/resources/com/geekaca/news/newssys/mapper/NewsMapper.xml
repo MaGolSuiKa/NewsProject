@@ -237,6 +237,10 @@
             nc.category_name like concat('%', #{keyword}, '%') )
         </if>
     </select>
+    <select id="getTotalNews" resultType="java.lang.Integer">
+        select count(*) from tb_news
+        where is_deleted=0
+    </select>
 
     <update id="increateViews">
         update tb_news set news_views = news_views + 1

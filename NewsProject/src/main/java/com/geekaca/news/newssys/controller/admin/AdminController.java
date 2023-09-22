@@ -3,7 +3,7 @@ package com.geekaca.news.newssys.controller.admin;
 import cn.hutool.captcha.ShearCaptcha;
 import cn.hutool.crypto.SecureUtil;
 import com.geekaca.news.newssys.domain.AdminUser;
-import com.geekaca.news.newssys.service.AdminUserService;
+import com.geekaca.news.newssys.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -20,7 +20,16 @@ public class AdminController {
 
     @Autowired
     private AdminUserService userService;
-    //接收登陆
+    @Autowired
+    private CommentService commentService;
+    @Autowired
+    private CategoryService categoryService;
+    @Autowired
+    private NewsService newsService;
+    @Autowired
+    private LinkService linkService;
+    @Autowired
+    private TagService tagService;
 
     @GetMapping("/login")
     public String login(){
@@ -65,12 +74,11 @@ public class AdminController {
     @GetMapping({"", "/", "/index", "/index.html"})
     public String index(HttpServletRequest request) {
         request.setAttribute("path", "index");
-        //类别数量  ctrl  + Alt 鼠标左键点击，跳转到函数实现
-        request.setAttribute("categoryCount", 0);
-        request.setAttribute("blogCount", 0);
-        request.setAttribute("linkCount", 0);
-        request.setAttribute("tagCount", 0);
-        request.setAttribute("commentCount", 0);
+        request.setAttribute("categoryCount", categoryService.getTotalCategories());
+        request.setAttribute("blogCount", newsService.getTotalNews());
+        request.setAttribute("linkCount", linkService.getTotalLinks());
+        request.setAttribute("tagCount", tagService.getTotalTags());
+        request.setAttribute("commentCount", commentService.getTotalComments());
         return "admin/index";
     }
 }

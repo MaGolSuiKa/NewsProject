@@ -176,4 +176,8 @@ set is_deleted = 1
         and comment_status = 0
 
     </update>
+    <select id="getTotalNewsComments" resultType="int">
+        select count(*) from tb_news_comment
+        where is_deleted=0
+    </select>
 </mapper>

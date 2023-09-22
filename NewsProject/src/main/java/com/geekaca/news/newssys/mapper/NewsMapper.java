@@ -32,4 +32,6 @@ public interface NewsMapper {
     int selectNewsCount(@Param("keyword") String keyword);
 
     int increateViews(@Param("newsId") Long newsId);
+
+    int getTotalNews();
 }

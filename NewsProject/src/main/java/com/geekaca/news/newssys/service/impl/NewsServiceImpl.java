@@ -85,4 +85,9 @@ public class NewsServiceImpl implements NewsService {
         int i = newsMapper.increateViews(newsId);
         return i;
     }
+
+    @Override
+    public int getTotalNews() {
+        return newsMapper.getTotalNews();
+    }
 }

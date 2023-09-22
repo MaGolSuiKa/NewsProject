@@ -27,4 +27,6 @@ public interface NewsCommentMapper {
     Boolean checkDone(Integer[] ids);
 
     int deleteBatch(Integer[] ids);
+
+    int getTotalNewsComments();
 }

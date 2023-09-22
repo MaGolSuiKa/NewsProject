@@ -23,4 +23,6 @@ public interface NewsTagMapper {
     int updateByPrimaryKey(NewsTag record);
 
     List<NewsTag> selectAll();
+
+    int getTotalTags();
 }

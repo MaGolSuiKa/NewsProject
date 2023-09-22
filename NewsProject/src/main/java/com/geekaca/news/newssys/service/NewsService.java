@@ -20,4 +20,6 @@ public interface NewsService {
 
     //把文章的访问量+1
     int updateNewsViews(Long newsId);
+
+    int getTotalNews();
 }

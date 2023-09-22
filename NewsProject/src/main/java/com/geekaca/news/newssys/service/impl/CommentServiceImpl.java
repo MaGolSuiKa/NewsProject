@@ -33,7 +33,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public int getTotalComments() {
-        return 0;
+        return newsCommentMapper.getTotalNewsComments();
     }
 
 

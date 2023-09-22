@@ -77,4 +77,8 @@
     <select id="selectAll" resultMap="BaseResultMap">
         select * from tb_news_tag
     </select>
+    <select id="getTotalTags" resultType="java.lang.Integer">
+        select count(*)  from tb_news_tag
+        where is_deleted=0
+    </select>
 </mapper>

@@ -20,4 +20,6 @@ public interface NewsCategoryMapper {
     int updateByPrimaryKey(NewsCategory record);
 
     List<NewsCategory> findAll();
+
+    int getTotalCategories();
 }
