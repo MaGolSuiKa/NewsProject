@@ -10,7 +10,12 @@
             <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
+    <resultMap id="TagNewsMap" type="com.geekaca.news.newssys.domain.TagNewsCount">
+        <id property="tagId" column="tag_id" jdbcType="INTEGER"/>
+        <result property="tagName" column="tag_name" jdbcType="VARCHAR"/>
+        <result property="tagCount" column="tagCount" jdbcType="TINYINT"/>
 
+    </resultMap>
     <sql id="Base_Column_List">
         tag_id,tag_name,is_deleted,
         create_time
@@ -80,5 +85,20 @@
     <select id="getTotalTags" resultType="java.lang.Integer">
         select count(*)  from tb_news_tag
         where is_deleted=0
+    </select>
+    <select id="selectTagNewsCounts" resultMap="TagNewsMap">
+        SELECT
+            tag.tag_id, tag.tag_name, count(nw.news_title) as tagCount
+        FROM
+            tb_news nw,
+            tb_news_tag tag,
+            tb_news_tag_relation ttr
+        WHERE
+            nw.news_id = ttr.news_id
+          AND ttr.tag_id = tag.tag_id
+        group by tag.tag_id
+        order by tagCount desc
+            limit 10
+
     </select>
 </mapper>

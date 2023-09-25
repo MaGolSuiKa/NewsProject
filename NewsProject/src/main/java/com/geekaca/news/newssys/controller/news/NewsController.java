@@ -3,9 +3,11 @@ package com.geekaca.news.newssys.controller.news;
 import cn.hutool.captcha.ShearCaptcha;
 import com.geekaca.news.newssys.domain.News;
 import com.geekaca.news.newssys.domain.NewsComment;
+import com.geekaca.news.newssys.domain.TagNewsCount;
 import com.geekaca.news.newssys.service.CommentService;
 import com.geekaca.news.newssys.service.ConfigService;
 import com.geekaca.news.newssys.service.NewsService;
+import com.geekaca.news.newssys.service.TagService;
 import com.geekaca.news.newssys.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -31,14 +34,12 @@ public class NewsController {
     private ConfigService configService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private TagService tagService;
 
     public static String theme = "amaze";
 
-    /**
-     * 首页
-     *
-     * @return
-     */
+    //首页
     @GetMapping({"/", "/index", "index.html"})
     public String index(HttpServletRequest request) {
         return this.page(request, 1);
@@ -54,8 +55,11 @@ public class NewsController {
         //点击最多
         request.setAttribute("hotBlogs", 0);
         //热门标签
-        request.setAttribute("hotTags", 0);
-
+        List<TagNewsCount> tagCounts = tagService.getAll();
+        if (tagCounts == null){
+            tagCounts = Collections.emptyList();
+        }
+        request.setAttribute("hotTags", tagCounts);
         request.setAttribute("pageName", "首页");
         request.setAttribute("configurations", configService.getAllConfigs());
         return "blog/" + theme + "/index";
