@@ -13,6 +13,8 @@ public interface NewsService {
 
     News getById(Long newsID);
 
+    News getNewsById(Long id);
+
     //查询新闻列表，带有分页数据
     PageResult getPageNews(Integer pageNO, Integer pageSize, String keyword);
 

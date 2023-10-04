@@ -45,6 +45,13 @@ public class NewsController {
         return this.page(request, 1);
     }
 
+    @GetMapping("/getById/{id}")
+    @ResponseBody
+    public News getById(@PathVariable("id") Long id) {
+        return newsService.getNewsById(id);
+    }
+
+    //分页数据
     @GetMapping({"/page/{pageNum}"})
     private String page(HttpServletRequest request, @PathVariable("pageNum") int pageNum) {
         PageResult pageNews = newsService.getPageNews(pageNum, 5,null);
@@ -99,6 +106,8 @@ public class NewsController {
         int i = newsService.updateNewsViews(newsId);
         return "blog/" + theme + "/detail";
     }
+
+    
     //评论操作
     @PostMapping(value = "/blog/comment")
     @ResponseBody

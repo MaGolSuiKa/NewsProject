@@ -37,6 +37,11 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    public News getNewsById(Long id) {
+        return newsMapper.selectByPrimaryKey(id);
+    }
+
+    @Override
     public PageResult getPageNews(Integer pageNO, Integer pageSize, String keyword) {
         int start = (pageNO - 1) * pageSize;
         List<News> newsList = newsMapper.selectByPage(start, pageSize, keyword);
